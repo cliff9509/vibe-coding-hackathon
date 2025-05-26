@@ -70,7 +70,12 @@ These prompts aim to establish the foundational architecture and key features.
     "Develop an interactive historical price chart for individual products. The chart should visualize price changes over time from different suppliers for a selected product. Allow users to filter by date range (e.g., last 7 days, 30 days, 90 days) and toggle supplier data on/off."
         Focus: Data visualization, historical trends, filtering options.
 
-
+AI TOOLS USED
+1. Gamma AI
+2. cursor ai
+3. claude ai
+4. lovable ai
+   
 
         
 
