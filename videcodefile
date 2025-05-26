@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Price Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .header-content {
+            padding: 2rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .tab:hover {
+            color: #374151;
+            background-color: #f9fafb;
+        }
+
+        .tab.active {
+            color: #2563eb;
+            background-color: #eff6ff;
+            border-bottom: 2px solid #2563eb;
+        }
+
+        .tab-content {
+            display: none;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            position: relative;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: 0.75rem center;
+            background-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background: white;
+            min-width: 150px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .product-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: between;
+            align-items: start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .product-info h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .product-info p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .best-price {
+            text-align: right;
+        }
+
+        .best-price-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .best-price-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #059669;
+            margin-bottom: 0.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .best-price-value:hover {
+            transform: scale(1.1);
+            color: #047857;
+        }
+
+        .best-price-supplier {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .price-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .price-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .price-card.best {
+            border-color: #059669;
+            background-color: #f0fdf4;
+        }
+
+        .price-card.best:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .price-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .supplier-name {
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .check-icon {
+            color: #059669;
+            font-weight: bold;
+        }
+
+        .price-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .trend-up {
+            color: #dc2626;
+            animation: pulse 2s infinite;
+        }
+
+        .trend-down {
+            color: #059669;
+        }
+
+        .trend-stable {
+            color: #6b7280;
+        }
+
+        .price-date {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .price-notes {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            background-color: #d1d5db;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .supplier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .supplier-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .supplier-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .supplier-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .supplier-contact {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .supplier-activity {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .activity-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .activity-item {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6b7280;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .no-data-icon {
+            font-size: 3rem;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+        }
+
+        .trend-section {
+            margin-bottom: 2rem;
+        }
+
+        .trend-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .trend-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .trend-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            padding: 0.75rem;
+            border-radius: 6px;
+        }
+
+        .stat-high {
+            background-color: #fef2f2;
+            color: #991b1b;
+        }
+
+        .stat-low {
+            background-color: #f0fdf4;
+            color: #166534;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .price-history {
+            margin-top: 1rem;
+        }
+
+        .history-title {
+            font-weight: 500;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f3f4f6;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item:hover {
+            background-color: #f3f4f6;
+            transform: translateX(5px);
+            padding-left: 10px;
+        }
+
+        .history-price {
+            font-weight: 500;
+        }
+
+        .history-date {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                min-width: 50%;
+                font-size: 0.75rem;
+                padding: 0.75rem 1rem;
+            }
+
+            .search-filter {
+                flex-direction: column;
+            }
+
+            .product-header {
+                flex-direction: column;
+                align-items: start;
+            }
+
+            .best-price {
+                text-align: left;
+            }
+
+            .price-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: white;
+            color: #111827;
+            padding: 2rem 0;
+            margin-top: 4rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .footer-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .footer-copyright {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        .footer-contact {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .footer-contact a {
+            color: #6b7280;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            min-width: 200px;
+        }
+
+        .footer-contact a:hover {
+            color: #2563eb;
+            background-color: #eff6ff;
+            transform: translateY(-2px);
+        }
+
+        .footer-contact i {
+            color: #2563eb;
+            width: 20px;
+            text-align: center;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 0.5rem;
+        }
+
+        .social-icon {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 1.25rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+
+        .social-icon:hover {
+            color: #2563eb;
+            background: #eff6ff;
+            border-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                padding: 0 1rem;
+            }
+
+            .footer-contact a {
+                min-width: 180px;
+            }
+
+            .social-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+    <!-- Add Font Awesome for social media icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <h1>Supplier Price Tracker</h1>
+                <p>Compare prices, track trends, and make smarter purchasing decisions</p>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('compare')">
+                    💰 Price Comparison
+                </button>
+                <button class="tab" onclick="switchTab('trends')">
+                    📈 Price Trends
+                </button>
+                <button class="tab" onclick="switchTab('suppliers')">
+                    👥 Suppliers
+                </button>
+                <button class="tab" onclick="switchTab('add')">
+                    ➕ Add Price
+                </button>
+            </div>
+        </div>
+
+        <!-- Price Comparison Tab -->
+        <div id="compare-tab" class="tab-content active">
+            <div class="card">
+                <div class="search-filter">
+                    <input type="text" class="search-input" placeholder="Search products..." id="searchInput" oninput="filterProducts()">
+                    <select class="filter-select" id="categoryFilter" onchange="filterProducts()">
+                        <option value="all">All Categories</option>
+                        <option value="Grains">Grains</option>
+                        <option value="Oil">Oil</option>
+                        <option value="Sweeteners">Sweeteners</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="products-container"></div>
+        </div>
+
+        <!-- Price Trends Tab -->
+        <div id="trends-tab" class="tab-content">
+            <div class="card">
+                <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1.5rem;">Price Trends Analysis</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Select Product</label>
+                    <select class="form-select" id="trendProduct" onchange="updateTrends()">
+                        <option value="1">Rice (50kg bag)</option>
+                        <option value="2">Cooking Oil (25L)</option>
+                        <option value="3">Sugar (50kg)</option>
+                        <option value="4">Flour (25kg)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="trends-container"></div>
+        </div>
+
+        <!-- Suppliers Tab -->
+        <div id="suppliers-tab" class="tab-content">
+            <div class="card">
+                <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1.5rem;">Supplier Directory</h2>
+                
+                <div class="supplier-grid" id="suppliers-container"></div>
+            </div>
+        </div>
+
+        <!-- Add Price Tab -->
+        <div id="add-tab" class="tab-content">
+            <div class="card">
+                <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1.5rem;">Add New Price Entry</h2>
+                
+                <div style="max-width: 400px;">
+                    <div class="form-group">
+                        <label class="form-label">Supplier</label>
+                        <select class="form-select" id="newSupplier">
+                            <option value="">Select Supplier</option>
+                            <option value="1">Ahmed Wholesale</option>
+                            <option value="2">Fatima Trading</option>
+                            <option value="3">Kemi Supplies</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Product</label>
+                        <select class="form-select" id="newProduct">
+                            <option value="">Select Product</option>
+                            <option value="1">Rice (50kg bag)</option>
+                            <option value="2">Cooking Oil (25L)</option>
+                            <option value="3">Sugar (50kg)</option>
+                            <option value="4">Flour (25kg)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Price (₦)</label>
+                        <input type="number" class="form-input" id="newPrice" placeholder="Enter price">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notes (Optional)</label>
+                        <input type="text" class="form-input" id="newNotes" placeholder="Quality, delivery terms, etc.">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="addPrice()" style="width: 100%;">
+                        Add Price Entry
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        let suppliers = [
+            { id: 1, name: 'Ahmed Wholesale', contact: '+234-801-234-5678', location: 'Market Street' },
+            { id: 2, name: 'Fatima Trading', contact: '+234-802-345-6789', location: 'Central Plaza' },
+            { id: 3, name: 'Kemi Supplies', contact: '+234-803-456-7890', location: 'New Market' }
+        ];
+
+        let products = [
+            { id: 1, name: 'Rice (50kg bag)', category: 'Grains', unit: 'bag' },
+            { id: 2, name: 'Cooking Oil (25L)', category: 'Oil', unit: 'container' },
+            { id: 3, name: 'Sugar (50kg)', category: 'Sweeteners', unit: 'bag' },
+            { id: 4, name: 'Flour (25kg)', category: 'Grains', unit: 'bag' }
+        ];
+
+        let priceEntries = [
+            { id: 1, supplierId: 1, productId: 1, price: 45000, date: '2025-05-20', notes: 'Good quality' },
+            { id: 2, supplierId: 2, productId: 1, price: 44500, date: '2025-05-20', notes: 'Premium grade' },
+            { id: 3, supplierId: 3, productId: 1, price: 46000, date: '2025-05-20', notes: 'Local variety' },
+            { id: 4, supplierId: 1, productId: 2, price: 28000, date: '2025-05-19', notes: 'Bulk discount available' },
+            { id: 5, supplierId: 2, productId: 2, price: 27500, date: '2025-05-19', notes: 'Fast delivery' },
+            { id: 6, supplierId: 1, productId: 1, price: 44000, date: '2025-05-15', notes: 'Price dropped' },
+            { id: 7, supplierId: 2, productId: 1, price: 45000, date: '2025-05-15', notes: 'Standard quality' },
+            { id: 8, supplierId: 3, productId: 3, price: 48000, date: '2025-05-18', notes: 'Refined sugar' },
+            { id: 9, supplierId: 1, productId: 4, price: 22000, date: '2025-05-17', notes: 'All purpose flour' }
+        ];
+
+        // Utility functions
+        function formatPrice(price) {
+            return 'KSh ' + price.toLocaleString();
+        }
+
+        function getCurrentPrices(productId) {
+            const recentPrices = priceEntries
+                .filter(entry => entry.productId === productId)
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            const supplierPrices = {};
+            recentPrices.forEach(entry => {
+                if (!supplierPrices[entry.supplierId]) {
+                    supplierPrices[entry.supplierId] = entry;
+                }
+            });
+            
+            return Object.values(supplierPrices);
+        }
+
+        function getBestPrice(productId) {
+            const currentPrices = getCurrentPrices(productId);
+            if (currentPrices.length === 0) return null;
+            
+            return currentPrices.reduce((best, current) => 
+                current.price < best.price ? current : best
+            );
+        }
+
+        function getPriceTrend(supplierId, productId) {
+            const supplierPrices = priceEntries
+                .filter(entry => entry.supplierId === supplierId && entry.productId === productId)
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (supplierPrices.length < 2) return null;
+            
+            const current = supplierPrices[0].price;
+            const previous = supplierPrices[1].price;
+            const change = ((current - previous) / previous) * 100;
+            
+            return { 
+                change, 
+                direction: change > 0 ? 'up' : change < 0 ? 'down' : 'stable' 
+            };
+        }
+
+        function getSupplierName(supplierId) {
+            const supplier = suppliers.find(s => s.id === supplierId);
+            return supplier ? supplier.name : 'Unknown';
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+
+            // Load content based on tab
+            if (tabName === 'compare') {
+                renderProducts();
+            } else if (tabName === 'trends') {
+                updateTrends();
+            } else if (tabName === 'suppliers') {
+                renderSuppliers();
+            }
+        }
+
+        // Render products for comparison
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            
+            const filteredProducts = products.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(searchTerm);
+                const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
+                return matchesSearch && matchesCategory;
+            });
+
+            if (filteredProducts.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <div class="no-data-icon">📦</div>
+                        <p>No products found matching your criteria</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredProducts.map(product => {
+                const currentPrices = getCurrentPrices(product.id);
+                const bestPrice = getBestPrice(product.id);
+                
+                if (currentPrices.length === 0) {
+                    return `
+                        <div class="product-card">
+                            <div class="product-header">
+                                <div class="product-info">
+                                    <h3>${product.name}</h3>
+                                    <p>${product.category} • per ${product.unit}</p>
+                                </div>
+                            </div>
+                            <div class="no-data">
+                                <div class="no-data-icon">📦</div>
+                                <p>No price data available for this product</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="product-card">
+                        <div class="product-header">
+                            <div class="product-info">
+                                <h3>${product.name}</h3>
+                                <p>${product.category} • per ${product.unit}</p>
+                            </div>
+                            ${bestPrice ? `
+                                <div class="best-price">
+                                    <div class="best-price-label">Best Price</div>
+                                    <div class="best-price-value">${formatPrice(bestPrice.price)}</div>
+                                    <div class="best-price-supplier">${getSupplierName(bestPrice.supplierId)}</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="price-grid">
+                            ${currentPrices.map(priceEntry => {
+                                const supplier = suppliers.find(s => s.id === priceEntry.supplierId);
+                                const trend = getPriceTrend(priceEntry.supplierId, product.id);
+                                const isBest = bestPrice && priceEntry.price === bestPrice.price;
+                                
+                                return `
+                                    <div class="price-card ${isBest ? 'best' : ''}">
+                                        <div class="price-card-header">
+                                            <div class="supplier-name">${supplier.name}</div>
+                                            ${isBest ? '<div class="check-icon">✓</div>' : ''}
+                                        </div>
+                                        <div class="price-value">${formatPrice(priceEntry.price)}</div>
+                                        ${trend ? `
+                                            <div class="price-trend">
+                                                <span class="trend-${trend.direction}">
+                                                    ${trend.direction === 'up' ? '↗' : trend.direction === 'down' ? '↘' : '→'}
+                                                    ${Math.abs(trend.change).toFixed(1)}%
+                                                </span>
+                                            </div>
+                                        ` : ''}
+                                        <div class="price-date">Updated: ${priceEntry.date}</div>
+                                        ${priceEntry.notes ? `<div class="price-notes">"${priceEntry.notes}"</div>` : ''}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter products
+        function filterProducts() {
+            renderProducts();
+        }
+
+        // Update trends
+        function updateTrends() {
+            const productId = parseInt(document.getElementById('trendProduct').value);
+            const container = document.getElementById('trends-container');
+            
+            const trendsHtml = suppliers.map(supplier => {
+                const supplierPrices = priceEntries
+                    .filter(entry => entry.supplierId === supplier.id && entry.productId === productId)
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                if (supplierPrices.length === 0) return '';
+
+                const trend = getPriceTrend(supplier.id, productId);
+                const currentPrice = supplierPrices[supplierPrices.length - 1];
+                const minPrice = Math.min(...supplierPrices.map(p => p.price));
+                const maxPrice = Math.max(...supplierPrices.map(p => p.price));
+
+                return `
+                    <div class="trend-card">
+                        <div class="trend-header">
+                            <h3 style="font-size: 1.125rem; font-weight: 600;">${supplier.name}</h3>
+                            <div class="best-price">
+                                <div class="best-price-value">${formatPrice(currentPrice.price)}</div>
+                                ${trend ? `
+                                    <div class="price-trend">
+                                        <span class="trend-${trend.direction}">
+                                            ${trend.direction === 'up' ? '↗' : trend.direction === 'down' ? '↘' : '→'}
+                                            ${Math.abs(trend.change).toFixed(1)}%
+                                        </span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div class="trend-stats">
+                            <div class="stat-card stat-high">
+                                <div class="stat-label">Highest Price</div>
+                                <div class="stat-value">${formatPrice(maxPrice)}</div>
+                            </div>
+                            <div class="stat-card stat-low">
+                                <div class="stat-label">Lowest Price</div>
+                                <div class="stat-value">${formatPrice(minPrice)}</div>
+                            </div>
+                        </div>
+
+                        <div class="price-history">
+                            <div class="history-title">Price History</div>
+                            ${supplierPrices.reverse().map(entry => `
+                                <div class="history-item">
+                                    <div>
+                                        <div class="history-price">${formatPrice(entry.price)}</div>
+                                        ${entry.notes ? `<div class="price-notes">"${entry.notes}"</div>` : ''}
+                                    </div>
+                                    <div class="history-date">${entry.date}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).filter(html => html !== '').join('');
+
+            container.innerHTML = trendsHtml || `
+                <div class="no-data">
+                    <div class="no-data-icon">📈</div>
+                    <p>No price data available for the selected product</p>
+                </div>
+            `;
+        }
+
+        // Render suppliers
+        function renderSuppliers() {
+            const container = document.getElementById('suppliers-container');
+            
+            container.innerHTML = suppliers.map(supplier => {
+                const recentActivity = priceEntries
+                    .filter(entry => entry.supplierId === supplier.id)
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .slice(0, 3);
+
+                return `
+                    <div class="supplier-card">
+                        <div class="supplier-name">${supplier.name}</div>
+                        <div class="supplier-contact">📞 ${supplier.contact}</div>
+                        <div class="supplier-contact">📍 ${supplier.location}</div>
+                        
+                        <div class="supplier-activity">
+                            <div class="activity-title">Recent Activity</div>
+                            ${recentActivity.map(entry => {
+                                const product = products.find(p => p.id === entry.productId);
+                                return `
+                                    <div class="activity-item">
+                                        ${product ? product.name : 'Unknown Product'}: ${formatPrice(entry.price)} (${entry.date})
+                                    </div>
+                                `;
+                            }).join('') || '<div class="activity-item">No recent activity</div>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Add new price
+        function addPrice() {
+            const supplierId = document.getElementById('newSupplier').value;
+            const productId = document.getElementById('newProduct').value;
+            const price = document.getElementById('newPrice').value;
+            const notes = document.getElementById('newNotes').value;
+
+            if (!supplierId || !productId || !price) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const newEntry = {
+                id: Date.now(),
+                supplierId: parseInt(supplierId),
+                productId: parseInt(productId),
+                price: parseFloat(price),
+                date: new Date().toISOString().split('T')[0],
+                notes: notes
+            };
+
+            priceEntries.unshift(newEntry);
+
+            // Clear form
+            document.getElementById('newSupplier').value = '';
+            document.getElementById('newProduct').value = '';
+            document.getElementById('newPrice').value = '';
+            document.getElementById('newNotes').value = '';
+
+            alert('Price entry added successfully!');
+            
+            // Refresh the comparison view if it's active
+            if (document.getElementById('compare-tab').classList.contains('active')) {
+                renderProducts();
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts();
+        });
+
+        // Add event listeners for form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const addButton = document.querySelector('.btn-primary');
+            const requiredFields = ['newSupplier', 'newProduct', 'newPrice'];
+            
+            function checkFormValidity() {
+                const isValid = requiredFields.every(id => 
+                    document.getElementById(id).value.trim() !== ''
+                );
+                addButton.disabled = !isValid;
+            }
+            
+            requiredFields.forEach(id => {
+                document.getElementById(id).addEventListener('input', checkFormValidity);
+                document.getElementById(id).addEventListener('change', checkFormValidity);
+            });
+            
+            // Initial check
+            checkFormValidity();
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <div class="footer-copyright">© Copyright Cliff 2025</div>
+                <div class="footer-contact">
+                    <a href="tel:+254115083704">
+                        <i class="fas fa-phone"></i>
+                        +254 115083704
+                    </a>
+                    <a href="mailto:cliffk992@gmail.com">
+                        <i class="fas fa-envelope"></i>
+                        cliffk992@gmail.com
+                    </a>
+                </div>
+            </div>
+            <div class="footer-social">
+                <a href="#" class="social-icon" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" class="social-icon" title="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="social-icon" title="LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="#" class="social-icon" title="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="#" class="social-icon" title="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
