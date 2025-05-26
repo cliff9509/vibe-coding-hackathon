@@ -1,6 +1,9 @@
 # vibe-coding-hackathon
 
-VIEW LIVE VERSION HERE:
+
+VIEW LIVE VERSION HERE:https://cliff9509.github.io/vibe-coding-hackathon/videcodefile.html
+
+
 Price Tracker Tool for Retail Shopkeepers
 Overview
 
